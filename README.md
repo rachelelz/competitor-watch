@@ -42,7 +42,7 @@ The rest of the report shows Tallyboard's Pro plan going from $12 to $15 per use
 
 ## Use it on your own competitors
 
-1. Copy `config/watchlist.template.json` to `watchlist.json` and list the companies and pages you want to watch.
+1. In the repo folder, copy `config/watchlist.template.json` to `watchlist.json` and list the companies and pages you want to watch. Each URL needs to start with `https://` or `http://`.
 2. Run it:
 
    ```bash
@@ -104,7 +104,7 @@ scripts/watch.py                 fetch, extract, snapshot, compare, report
 config/watchlist.template.json   copy this to watchlist.json
 examples/fixtures/               two weeks of saved pages for three made-up competitors
 examples/sample-report.md        the demo output
-tests/test_watch.py              37 offline tests: python3 -m unittest discover tests
+tests/test_watch.py              42 offline tests: python3 -m unittest discover tests
 ```
 
 ## License

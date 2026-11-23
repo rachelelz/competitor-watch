@@ -7,9 +7,11 @@ description: Watch competitor web pages for positioning changes and explain what
 
 A script does the fetching and comparing. You read the result and write a short brief. The script is deterministic, so the same pages always give the same report. Your part is the reading.
 
+In the commands below, `<skill>` means the folder this SKILL.md is in, for example `~/.claude/skills/competitor-watch`. Run every command from the user's own data folder, for example `~/competitors`. `watchlist.json`, `state/` and `report.md` live there, not in the skill folder.
+
 ## 1. Set up the watchlist
 
-1. Copy `config/watchlist.template.json` to `watchlist.json` in the user's working folder.
+1. From the data folder, copy the template: `cp <skill>/config/watchlist.template.json watchlist.json`
 2. Ask which competitors to watch and which pages. Homepages, pricing pages and product pages work best.
 3. Fill in `name` and `urls` for each competitor.
 4. Add `ignore` regexes only for things that change every week and mean nothing, such as "Trusted by 12,000 teams". Remember that backslashes are doubled in JSON.
@@ -18,11 +20,12 @@ A script does the fetching and comparing. You read the result and write a short 
 ## 2. Run it
 
 ```
-python3 scripts/watch.py --config watchlist.json --state state --out report.md
+python3 <skill>/scripts/watch.py --config watchlist.json --state state --out report.md
 ```
 
 - The first run only saves snapshots. Changes show from the second run on.
-- To try it without the network: `python3 scripts/watch.py --demo`.
+- Unreachable pages slow a run down, because each one waits for the 15 second timeout.
+- To try it without the network: `python3 <skill>/scripts/watch.py --demo`.
 - If a site renders with JavaScript, the report says the page has very little visible text. The user can save the rendered page as HTML in a folder, named like the slug in `state/` (for example `competitor.example-pricing.html`), and run with `--from-dir FOLDER`.
 
 ## 3. Write the brief
@@ -57,7 +60,7 @@ Tallyboard. The headline, meta description and main button all changed ("Start f
 
 Run the same command once a week, on the same weekday, with the same `--state` folder. The state folder is what makes next week's comparison possible, so keep it.
 
-- cron (run `mkdir -p out` once): `0 8 * * 1 cd /path/to/competitor-watch && python3 scripts/watch.py --config watchlist.json --out out/$(date +\%F).md`
+- cron (run `mkdir -p out` once): `0 8 * * 1 cd /path/to/your/data && python3 <skill>/scripts/watch.py --config watchlist.json --out out/$(date +\%F).md`
 - Claude Code scheduled task: schedule a weekly task that runs the command, reads the new report and writes the brief using the rules above.
 
 The tool keeps the last 8 snapshots per page by default. Change `keep_snapshots` in the watchlist to keep more or fewer.

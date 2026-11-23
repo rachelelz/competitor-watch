@@ -1,6 +1,9 @@
 """Offline tests for scripts/watch.py. Run from the repo root: python3 -m unittest discover tests"""
+import contextlib
 import http.server
+import io
 import json
+import subprocess
 import sys
 import tempfile
 import threading
@@ -311,6 +314,61 @@ class DemoTests(unittest.TestCase):
             watch.main(args + ["--from-dir", str(fixtures / "week1"), "--date", "2026-11-16"])
             watch.main(args + ["--from-dir", str(fixtures / "week2"), "--date", "2026-11-23"])
             self.assertTrue(out.read_text().startswith("Look at this first: Tallyboard homepage"))
+
+
+class BadConfigTests(unittest.TestCase):
+    def write_config(self, tmp, competitor):
+        path = Path(tmp) / "watchlist.json"
+        path.write_text(json.dumps({"competitors": [competitor]}), encoding="utf-8")
+        return path
+
+    def run_bad(self, competitor):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self.write_config(tmp, competitor)
+            with self.assertRaises(SystemExit) as caught, contextlib.redirect_stderr(io.StringIO()) as err:
+                watch.load_config(path)
+        return caught.exception.code, err.getvalue()
+
+    def test_url_without_scheme_is_rejected_cleanly(self):
+        code, message = self.run_bad({"name": "Acme", "urls": ["notaurl"]})
+        self.assertEqual(code, 2)
+        self.assertIn("Acme", message)
+        self.assertIn("notaurl", message)
+
+    def test_non_http_scheme_is_rejected(self):
+        code, _ = self.run_bad({"name": "Acme", "urls": ["ftp://acme.example/"]})
+        self.assertEqual(code, 2)
+
+    def test_bad_regex_is_rejected_cleanly(self):
+        code, message = self.run_bad({"name": "Acme", "urls": ["https://acme.example/"], "ignore": ["("]})
+        self.assertEqual(code, 2)
+        self.assertIn("Bad regex in ignore for Acme: (", message)
+
+    def test_bad_url_at_fetch_time_becomes_a_note(self):
+        def boom(url):
+            raise ValueError("unknown url type")
+        with tempfile.TemporaryDirectory() as state:
+            for url in ("notaurl", "https://acme.example/"):
+                page = watch.check_page(url, [], state, "2026-11-23", boom)
+                self.assertEqual(page["status"], "skipped")
+                self.assertTrue(page["notes"])
+
+
+class WorkingFolderTests(unittest.TestCase):
+    def test_script_uses_current_folder_not_repo_folder(self):
+        fixtures = ROOT / "examples" / "fixtures" / "week1"
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            (work / "pages").mkdir()
+            for f in fixtures.glob("*.html"):
+                (work / "pages" / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+            (work / "watchlist.json").write_text((ROOT / "examples" / "watchlist.example.json").read_text(), encoding="utf-8")
+            cmd = [sys.executable, str(ROOT / "scripts" / "watch.py"), "--config", "watchlist.json", "--state", "state",
+                   "--out", "report.md", "--from-dir", "pages", "--date", "2026-11-16"]
+            done = subprocess.run(cmd, cwd=work, capture_output=True, text=True)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertTrue((work / "report.md").exists())
+            self.assertTrue((work / "state").is_dir())
 
 
 if __name__ == "__main__":

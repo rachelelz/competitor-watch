@@ -481,10 +481,28 @@ def page_place(url):
     return "Homepage" if path in ("", "/") else path
 
 
+def is_http_url(url):
+    """True for a string like https://example.com/page."""
+    if not isinstance(url, str):
+        return False
+    parts = urllib.parse.urlsplit(url.strip())
+    return parts.scheme in ("http", "https") and bool(parts.netloc)
+
+
+def safe_fetch(fetch, url):
+    """Call the fetcher. A bad URL or unexpected error becomes a skipped result, never a crash."""
+    if not is_http_url(url):
+        return {"skipped": f"this is not a web address starting with http:// or https://: {url}"}
+    try:
+        return fetch(url)
+    except Exception as err:  # one bad page must not stop the whole run
+        return {"skipped": f"the page could not be checked ({err})"}
+
+
 def check_page(url, ignore, state_dir, today, fetch, keep=KEEP_SNAPSHOTS):
     """Fetch one page, save its snapshot and compare it with the previous one."""
     result = {"url": url, "place": page_place(url), "status": "unchanged", "changes": [], "notes": [], "previous": None}
-    fetched = fetch(url)
+    fetched = safe_fetch(fetch, url)
     if fetched.get("skipped"):
         result.update(status="skipped", notes=[fetched["skipped"]])
         return result
@@ -515,19 +533,31 @@ def run_watch(config, state_dir, fetch, today, delay=0, sleep=time.sleep):
     return results
 
 
+def fail(message):
+    """Print a clean error and exit with status 2."""
+    print(message, file=sys.stderr)
+    sys.exit(2)
+
+
 def load_config(path):
     """Read and check the watchlist file."""
     try:
         config = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, ValueError) as err:
-        sys.exit(f"Could not read {path}: {err}")
+        fail(f"Could not read {path}: {err}")
     if not config.get("competitors"):
-        sys.exit("The watchlist needs a 'competitors' list.")
+        fail("The watchlist needs a 'competitors' list.")
     for competitor in config["competitors"]:
         if not competitor.get("name") or not competitor.get("urls"):
-            sys.exit("Each competitor needs a 'name' and at least one URL in 'urls'.")
+            fail("Each competitor needs a 'name' and at least one URL in 'urls'.")
+        for url in competitor["urls"]:
+            if not is_http_url(url):
+                fail(f"Bad URL for {competitor['name']}: {url} (it must start with http:// or https://)")
         for pattern in competitor.get("ignore", []):
-            re.compile(pattern)
+            try:
+                re.compile(pattern)
+            except re.error as err:
+                fail(f"Bad regex in ignore for {competitor['name']}: {pattern} ({err})")
     return config
 
 
