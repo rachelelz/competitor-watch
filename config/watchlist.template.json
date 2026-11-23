@@ -1,0 +1,22 @@
+{
+  "_notes": [
+    "Copy this file to watchlist.json and replace the examples.",
+    "keep_snapshots: how many dated snapshots to keep per page. Default 8.",
+    "competitors: one entry per company. name is how it appears in the report.",
+    "urls: the pages to watch. Homepages, pricing pages and product pages work best.",
+    "ignore: optional regular expressions. A sentence, heading or button that matches is left out of the comparison. Use it for rotating counters, promo banners or anything else that changes every week.",
+    "In JSON, write a backslash twice. For example \"\\\\d+ customers\" matches '120 customers'.",
+    "Only watch pages you are allowed to fetch. The tool checks robots.txt and skips pages it disallows."
+  ],
+  "keep_snapshots": 8,
+  "competitors": [
+    {
+      "name": "Example Competitor",
+      "urls": [
+        "https://competitor-one.example/",
+        "https://competitor-one.example/pricing"
+      ],
+      "ignore": ["Trusted by \\d[\\d,]* teams"]
+    }
+  ]
+}

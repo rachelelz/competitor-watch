@@ -1,0 +1,19 @@
+{
+  "competitors": [
+    {
+      "name": "Tallyboard",
+      "urls": ["https://tallyboard.example/", "https://tallyboard.example/pricing"],
+      "ignore": []
+    },
+    {
+      "name": "Plankit",
+      "urls": ["https://plankit.example/", "https://plankit.example/enterprise"],
+      "ignore": ["teams ship with Plankit"]
+    },
+    {
+      "name": "Orbitask",
+      "urls": ["https://orbitask.example/features"],
+      "ignore": []
+    }
+  ]
+}
