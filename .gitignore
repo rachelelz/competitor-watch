@@ -1,6 +1,9 @@
+# Your own data belongs in a data folder outside the repo. These lines are a safety net.
+watchlist.json
 state/
+report.md
+out/
+
 __pycache__/
 *.pyc
 .DS_Store
-report.md
-out/

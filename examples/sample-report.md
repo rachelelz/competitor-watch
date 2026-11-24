@@ -2,7 +2,7 @@ Look at this first: Tallyboard homepage, headline (H1) changed from "Project man
 
 # Competitor watch: 2026-11-23
 
-Pages checked: 5. With changes: 4. No change: 1.
+Pages checked: 5. With changes: 3. Problems: 1. No change: 1.
 
 ## Tallyboard
 
@@ -52,14 +52,6 @@ https://tallyboard.example/pricing (compared with 2026-11-16)
 - **Positioning: button and link text (CTA) changed**
   - Added: "Book a demo"
 
-## Plankit
-
-### /enterprise
-https://plankit.example/enterprise (first snapshot)
-
-- **Technical: Page status changed**
-  - New in watchlist, the page returns HTTP 404.
-
 ## Orbitask
 
 ### /features
@@ -67,6 +59,10 @@ https://orbitask.example/features (compared with 2026-11-16)
 
 - **Technical: Page status changed**
   - The page now redirects to https://orbitask.example/product.
+
+## Problems
+
+- Plankit /enterprise (https://plankit.example/enterprise): HTTP 404, first seen 2026-11-23 on the first check of this page.
 
 ## No change
 

@@ -1,10 +1,10 @@
 {
   "_notes": [
-    "Copy this file to watchlist.json and replace the examples.",
-    "keep_snapshots: how many dated snapshots to keep per page. Default 8.",
+    "Copy this file to watchlist.json in your data folder, outside the repo, and replace the examples.",
+    "keep_snapshots: how many dated snapshots to keep per page, as a whole number of 1 or more without quotes. Default 8. The newest snapshot with page content is always kept as well.",
     "competitors: one entry per company. name is how it appears in the report.",
-    "urls: the pages to watch. Homepages, pricing pages and product pages work best.",
-    "ignore: optional regular expressions. A sentence, heading or button that matches is left out of the comparison. Use it for rotating counters, promo banners or anything else that changes every week.",
+    "urls: a list of the pages to watch, even if there is only one. Homepages, pricing pages and product pages work best.",
+    "ignore: an optional list of regular expressions. Matching text is left out of the comparison in every text field: page title, meta and social descriptions, headings, buttons and body sentences. Prices and plan names are always compared. Use it for rotating counters, promo banners or anything else that changes every week.",
     "In JSON, write a backslash twice. For example \"\\\\d+ customers\" matches '120 customers'.",
     "Only watch pages you are allowed to fetch. The tool checks robots.txt and skips pages it disallows."
   ],
